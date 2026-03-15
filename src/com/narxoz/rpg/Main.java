@@ -12,18 +12,18 @@ import com.narxoz.rpg.composite.EnemyUnit;
 import com.narxoz.rpg.composite.HeroUnit;
 import com.narxoz.rpg.composite.PartyComposite;
 import com.narxoz.rpg.composite.RaidGroup;
+import com.narxoz.rpg.bridge.PhysicalEffect;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== Homework 4 Demo: Bridge + Composite ===\n");
 
-        // TODO: build leaves
         HeroUnit warrior = new HeroUnit("Arthas", 140, 30);
         HeroUnit mage = new HeroUnit("Jaina", 90, 40);
         EnemyUnit goblin = new EnemyUnit("Goblin", 70, 20);
         EnemyUnit orc = new EnemyUnit("Orc", 120, 25);
+        EnemyUnit necromancer = new EnemyUnit("Necromancer", 80, 30);
 
-        // TODO: build composite hierarchy (nested)
         PartyComposite heroes = new PartyComposite("Heroes");
         heroes.add(warrior);
         heroes.add(mage);
@@ -32,26 +32,30 @@ public class Main {
         frontline.add(goblin);
         frontline.add(orc);
 
-        RaidGroup enemies = new RaidGroup("Enemy Raid");
-        enemies.add(frontline);
+        RaidGroup innerSquad = new RaidGroup("Inner Squad");
+        innerSquad.add(frontline);
+
+        RaidGroup enemyRaid = new RaidGroup("Enemy Raid");
+        enemyRaid.add(innerSquad);
+        enemyRaid.add(necromancer);
 
         System.out.println("--- Team Structures ---");
         heroes.printTree("");
-        enemies.printTree("");
+        enemyRaid.printTree("");
 
-        // TODO: Bridge combinations
         Skill slashFire = new SingleTargetSkill("Slash", 20, new FireEffect());
         Skill slashIce = new SingleTargetSkill("Slash", 20, new IceEffect());
         Skill stormFire = new AreaSkill("Storm", 15, new FireEffect());
+        Skill stormPhysical = new AreaSkill("Storm", 15, new PhysicalEffect());
 
         System.out.println("\n--- Bridge Preview ---");
         System.out.println(slashFire.getSkillName() + " using " + slashFire.getEffectName());
         System.out.println(slashIce.getSkillName() + " using " + slashIce.getEffectName());
         System.out.println(stormFire.getSkillName() + " using " + stormFire.getEffectName());
+        System.out.println(stormPhysical.getSkillName() + " using " + stormPhysical.getEffectName());
 
-        // TODO: run raid
         RaidEngine engine = new RaidEngine().setRandomSeed(42L);
-        RaidResult result = engine.runRaid(heroes, enemies, slashFire, stormFire);
+        RaidResult result = engine.runRaid(heroes, enemyRaid, slashFire, stormFire);
 
         System.out.println("\n--- Raid Result ---");
         System.out.println("Winner: " + result.getWinner());
