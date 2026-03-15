@@ -2,6 +2,8 @@ package com.narxoz.rpg.bridge;
 
 import com.narxoz.rpg.composite.CombatNode;
 
+import java.util.List;
+
 public class AreaSkill extends Skill {
     public AreaSkill(String skillName, int basePower, EffectImplementor effect) {
         super(skillName, basePower, effect);
@@ -9,8 +11,26 @@ public class AreaSkill extends Skill {
 
     @Override
     public void cast(CombatNode target) {
-        // TODO: Area Bridge action
-        // Apply resolved damage to a composite target.
-        // Tip: Let Composite classes decide how to distribute AOE damage.
+        if(target == null || !target.isAlive()){
+            return;
+        }
+        int damage = resolvedDamage();
+        if(damage <= 0){
+            return;
+        }
+        applyToAllAliveLeaves(target, damage);
+    }
+
+    private void applyToAllAliveLeaves(CombatNode node, int damage){
+        List<CombatNode> children = node.getChildren();
+        if(children.isEmpty()){
+            if(node.isAlive()){
+                node.takeDamage(damage);
+            }
+            return;
+        }
+        for(CombatNode child : children){
+            applyToAllAliveLeaves(child, damage);
+        }
     }
 }
